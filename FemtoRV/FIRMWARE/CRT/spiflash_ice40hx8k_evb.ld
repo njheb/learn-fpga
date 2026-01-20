@@ -7,16 +7,12 @@
 /*  initialization data in flash.                 */
 /* AT keyword specifies LMA (Load Memory Address) */
 
-#include "link_memory_info.h"
-
 MEMORY {
-//    FLASH (rx)  : ORIGIN = 0x00820000, LENGTH = 0x100000    /* 4 MB in flash */
-    FLASH (RX)  : ORIGIN = VIRT_FLASH_MEM_START, LENGTH = VIRT_FLASH_MEM_LEN
-    RAM   (rwx) : ORIGIN = 0x00000000, LENGTH = 0x1800      /* 6 kB in RAM   */ 
+    FLASH (rx)  : ORIGIN = 0x00830000, LENGTH = 0x100000    /* 1 MB in flash */
+    RAM   (rwx) : ORIGIN = 0x00000000, LENGTH = 0x3800      /* 14 kB in RAM  */
 }
 
 SECTIONS {
-
 
     /* 
      * This is the initialized data and fastcode section
@@ -30,18 +26,24 @@ SECTIONS {
         _ram_start = .;    /* create a global symbol at ram start (e.g., for garbage collector) */
 	
 	/* Initialized data */
+        *(.data)                     
         *(.data*)          
+        *(.sdata)          
         *(.sdata*)
+	
+	/* functions with attribute((section(".fastcode"))) */	
+	/* (e.g., some functions in femtoGL)                */
+	*(.fastcode*)      
 
 	/* integer mul and div */
 	*/libgcc.a:muldi3.o(.text)
 	*/libgcc.a:div.o(.text)    
 
-	putchar.o(.text)
-	print.o(.text)	
+        /* low-level graphics functions */
+	*/libfemtorv32.a:ssd1351_1331.o(.text) 
 
-	/* functions with attribute((section(".fastcode"))) */	
-	*(.fastcode*)      
+        /* timing */
+	wait_cycles.o(.text)
 
         . = ALIGN(4);
         _edata = .;        /* define a global symbol at data end; used by startup code in order to initialise the .data section in RAM */
@@ -50,34 +52,49 @@ SECTIONS {
     /* The (non fastcode) program code and other data goes into FLASH */
     .text : {
         . = ALIGN(4);
-        start_spiflash1.o(.text)  /* c runtime initialization (code) */
-
-        /*
-         * I do not understand why, but if I do not put this section, I got
-         * an overlapping sections error with some programs (for instance pi.c
-         * or C++ programs)
-         */
-        *(.eh_frame)  
-        *(.eh_frame_hdr)   
-        *(.init_array)         
-        *(.gcc_except_table*)  
+        crt0_spiflash.o(.text)  /* c runtime initialization (code) */
 	
-        *(.text*)                 /* .text* sections (code) */
+
+        /* 
+	 * I do not understand why, but if I do not put that here, I got
+	 * an overlapping sections error with some programs (for instance pi.c
+	 * or C++ programs) 
+	 */
+        *(.eh_frame)
+        *(.eh_frame_hdr)
+        *(.init_array)
+        *(.gcc_except_table*)	
+	
+        *(.text)                /* .text sections (code) */
+        *(.text*)               /* .text* sections (code) */
         . = ALIGN(4);
-        *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
-        *(.srodata*)             /* .rodata* sections (constants, strings, etc.) */
-        _etext = .;              /* define a global symbol at end of code */
-        _sidata = _etext;        /* This is used by the startup in order to initialize the .data section */
+        *(.rodata)              /* .rodata sections (constants, strings, etc.) */
+        *(.rodata*)             /* .rodata* sections (constants, strings, etc.) */
+        *(.srodata)             /* .rodata sections (constants, strings, etc.) */
+        *(.srodata*)            /* .rodata* sections (constants, strings, etc.) */
+        _etext = .;             /* define a global symbol at end of code */
+        _sidata = _etext;       /* This is used by the startup in order to initialize the .data section */
     } >FLASH
 
     /* Uninitialized data section */
     .bss : {
         . = ALIGN(4);
         _sbss = .;         /* define a global symbol at bss start; used by startup code */
+        *(.bss)
         *(.bss*)
+        *(.sbss)
         *(.sbss*)
         *(COMMON)
         . = ALIGN(4);
         _ebss = .;         /* define a global symbol at bss end; used by startup code */
     } >RAM
+
+    /* this is to define the start of the heap, and make sure we have a minimum size */
+    .heap : {
+        . = ALIGN(4);
+        _heap_start = .;    /* define a global symbol at heap start */
+	_end = .;           /* as expected by syscalls.c            */
+    } >RAM
+    
+    
 }
