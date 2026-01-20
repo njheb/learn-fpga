@@ -104,7 +104,15 @@ else ifeq ($(BOARD),icezero)
     TOOLCHAIN_PROG_CMD=cp $< $(RASPI_REMOTE_DIR)/trenz/
     LINKADJUST=_icezero.ld
 else
-    TOOLCHAIN_PROG_CMD=iceprog -o 128k $<
+    # iCE40HX8K-EVB needs a special programmer.
+    # The bitstream size is 136,448 bytes, and the flash block size is 64 kB.
+    # Therefore, the executable is placed at the next block-aligned address
+    # in the flash memory.
+    ifeq ($(BOARD),ice40hx8k_evb)
+        TOOLCHAIN_PROG_CMD=iceprogduino -o 0x30000
+    else
+        TOOLCHAIN_PROG_CMD=iceprog -o 128k $<
+    endif
 endif
 
 ################################################################################
