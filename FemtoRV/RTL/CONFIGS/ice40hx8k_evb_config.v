@@ -1,11 +1,14 @@
-// Default femtosoc configuration file for ICE40HX8K-EVB
+// Default femtosoc configuration file for ICE40HX8K_EVB
 
 /************************* Devices **********************************************************************************/
 
 `define NRV_IO_LEDS          // Mapped IO, LEDs D1,D2,D3,D4 (D5 is used to display errors)
 `define NRV_IO_UART          // Mapped IO, virtual UART (USB)
-//`define NRV_IO_SSD1351       // Mapped IO, 128x128x64K OLED screen
-//`define NRV_IO_MAX7219       // Mapped IO, 8x8 led matrix
+`define NRV_IO_SSD1351       // Mapped IO, 128x128x64K OLED screen
+`define NRV_IO_MAX7219       // Mapped IO, 8x8 led matrix
+`define NRV_IO_GPIOS          //
+`define NRV_IO_GPIOS_WIDTH 6  //assumes UEXT assignments see pcf for notes
+`define NRV_IO_BUTTONS        // Mapped IO, BUT1 (note BUT2 used as RESET)
 `define NRV_MAPPED_SPI_FLASH // SPI flash mapped in address space. Can be used to run code from SPI flash.
 
 /************************* Processor configuration *******************************************************************/
@@ -14,7 +17,10 @@
 
 `define NRV_FEMTORV32_QUARK_SRAM
 `define NRV_SRAM
-`define NRV_FREQ 40
+`define NRV_FREQ 40  //SRAM OK at 40MHz
+
+//`define NRV_FREQ 45  //SRAM CAUSES PROBLEMS WHEN THIS FAST
+//`define NRV_FREQ 32
 `define NRV_RESET_ADDR 32'h00830000 // Jump execution to SPI Flash (800000h, +192k(30000h) for FPGA bitstream)
                                     // Maximum bitstream size is 136448 bytes and the firmware address is
 				    // aligned to the block size 64KB, hence 192KB.

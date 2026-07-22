@@ -15,6 +15,8 @@
 //sram_tinyraytrace code in sram   6:49 @ 45MHz
 //tinyraytrace link with sram lib  8:45 @ 45MHz
 //tinyraytrace standard           27:27 @45MHz
+
+//2026jul15 found sram not to be stable on other trenz board at 45MHz was ok at 40MHz 
 /********************************************************************************************************************/
 
 /************************* Devices **********************************************************************************/
@@ -23,9 +25,13 @@
 //`define NRV_IO_IRDA          // In IO_LEDS, support for the IRDA on the IceStick (WIP)
 `define NRV_IO_UART          // Mapped IO, virtual UART #not (USB) /dev/ttyS0 on raspberry pi 40pin header
 `define NRV_IO_SSD1351       // Mapped IO, 128x128x64K OLED screen
-`define NRV_IO_MAX7219       // Mapped IO, 8x8 led matrix NOT TESTED BUT WE HAVE PLENTY OF SPACE TO LEAVE ACTIVE
-`define NRV_MAPPED_SPI_FLASH // SPI flash mapped in address space. Can be used to run code from SPI flash.
+`define NRV_IO_MAX7219       // Mapped IO, 8x8 led matrix DISABLED WHEN GPIOS ALLOCATED FOR BITBANG spi
+//if you have a single PMOD this may be less useful as you will be sharing with SSD an MAX pins
+//`define NRV_IO_GPIOS         // Mapped IO between 2 and 8 GPIOS for bitbandg and general gpio work like buttons and leds
+//`define NRV_IO_GPIOS_WIDTH 2 // e.g. allocate 2 pins for bb_i2c oled demo using MAX7219 pins while still using SSD1351
 
+`define NRV_MAPPED_SPI_FLASH // SPI flash mapped in address space. Can be used to run code from SPI flash.
+//`define NRV_MAPPED_QSPI_PSRAM //testing 
 /************************* Processor configuration *******************************************************************/
 
 /*
@@ -63,7 +69,10 @@
 //`define NRV_FREQ 32                 // Validated at 50 MHz on the IceStick. Can overclock to 70 MHz. 
 //`define NRV_FREQ 32                 // Validated at 50 MHz on the IceStick. Can overclock to 70 MHz. 
 ////make 32MHz to match olimexice40hx8k-evb sram enabled x6v-fpga project need further acknowledgement HERE TODO
-`define NRV_FREQ 45
+//`define NRV_FREQ 45  //may have a stability problem with SRAM at this speed
+`define NRV_FREQ 40 //try sram_tinyraytracer at this freq and see if resets go away that i only noticed after initial pull requestmade
+//`define NRV_FREQ 32
+//`define NRV_FREQ 25 //for psram testing
 `define NRV_RESET_ADDR 32'h00830000 // Jump execution to SPI Flash (800000h, +192k(30000h) for FPGA bitstream on icezero)
 `define NRV_COUNTER_WIDTH 24        // Number of bits in cycles counter
 `define NRV_TWOLEVEL_SHIFTER        // Faster shifts

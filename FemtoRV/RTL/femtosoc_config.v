@@ -40,6 +40,10 @@
 `include "CONFIGS/ice40hx8k_evb_config.v"
 `endif
 
+`ifdef ICE40HX1K_EVB
+`include "CONFIGS/ice40hx1k_evb_config.v"
+`endif
+
 `ifdef BENCH_VERILATOR
 `include "CONFIGS/bench_config.v"
 `endif
@@ -56,6 +60,16 @@
  * pin 47 or change in nanorv.pcf). 
  */
 `ifdef ICE_ZERO
+`define NRV_NEGATIVE_RESET 
+`endif
+
+`ifdef ICE40HX8K_EVB
+//using BUT2
+`define NRV_NEGATIVE_RESET 
+`endif
+
+`ifdef ICE40HX1K_EVB
+//using BUT2
 `define NRV_NEGATIVE_RESET 
 `endif
 
@@ -128,11 +142,19 @@
  `define ICE40
 `endif
 
+`ifdef ICE40HX1K_EVB
+ `define ICE40
+// `define PASSTHROUGH_PLL //might need to have new CLOCKWORK define
+ `define GEARDOWN_PLL //might need to have new CLOCKWORK define
+`endif
+
 /******************************************************************************************************************/
 /* Processor */
 
 `define NRV_IS_IO_ADDR(addr) |addr[23:22] // Asserted if address is in IO space (then it needs additional wait states)
 `define NRV_IS_SRAM_ADDR(addr) addr[23:20] == 4'b0001 //claim additional wait states if executing from SRAM
+//for PSRAM, don't use SRAM region while testing
+//`define NRV_IS_PSRAM_ADDR(addr) addr[23:22] == 2'b11 //claim additional wait states if executing from SRAM this specialisataion not needed as NRV_IO_ADDR takes care of it
 
 `include "PROCESSOR/utils.v"
 

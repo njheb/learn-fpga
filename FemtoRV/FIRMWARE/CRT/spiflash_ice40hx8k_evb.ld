@@ -8,7 +8,7 @@
 /* AT keyword specifies LMA (Load Memory Address) */
 
 MEMORY {
-    FLASH (rx)  : ORIGIN = 0x00830000, LENGTH = 0x100000    /* 1 MB in flash */
+    FLASH (rx)  : ORIGIN = 0x00830000, LENGTH = 0x100000 - 0x30000    /* don't go past 1 MB in flash to protect scene1.dat */
     RAM   (rwx) : ORIGIN = 0x00000000, LENGTH = 0x3800      /* 14 kB in RAM  */
 }
 

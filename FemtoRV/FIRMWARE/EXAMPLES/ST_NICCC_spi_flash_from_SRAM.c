@@ -64,8 +64,9 @@ void spi_reset() {
  * Reads one byte from the SPI flash, using the mapped SPI flash interface.
  */
 #define SPI_FLASH_BASE ((uint32_t*)(1 << 23))
-//#define SRAM_BASE ((uint32_t*)(0x100000))
-uint32_t sram_scene[0x10000] ; //RV32_SRAMDATA; //0x20000 all 512K words
+#define SRAM_BASE ((uint32_t*)(0x100000))
+//uint32_t sram_scene[0x10000] ; //RV32_SRAMDATA; //0x20000 all 512K words
+uint32_t* sram_scene = SRAM_BASE ; //RV32_SRAMDATA; //0x20000 all 512K words
 
 void transfer_scene_to_sram(void) RV32_FASTCODE;
 void transfer_scene_to_sram(void)
@@ -74,7 +75,7 @@ void transfer_scene_to_sram(void)
       sram_scene[i] = SPI_FLASH_BASE[i+0x40000];
 }
 
-uint8_t next_spi_byte() RV32_SRAMCODE;
+uint8_t next_spi_byte() RV32_FASTCODE;
 uint8_t next_spi_byte() {
    uint8_t result;
    if(spi_word_addr != spi_addr >> 2) {
@@ -87,7 +88,7 @@ uint8_t next_spi_byte() {
    return (uint8_t)(result);
 }
 
-uint16_t next_spi_word() RV32_SRAMCODE;
+uint16_t next_spi_word() RV32_FASTCODE;
 uint16_t next_spi_word() {
    /* In the ST-NICCC file,  
     * words are stored in big endian format.
@@ -137,7 +138,7 @@ int wireframe = 0;
  *   See DATA/test_ST_NICCC.c for an example
  * program.
  */
-int read_frame() RV32_SRAMCODE;
+int read_frame() RV32_FASTCODE;
 int read_frame() {
     uint8_t frame_flags = next_spi_byte();
 
@@ -222,7 +223,7 @@ void print_frame(int frame) {
     printf("%d %x ",frame, spi_addr/4);
 }
 
-int main() RV32_SRAMCODE;
+int main() RV32_FASTCODE;
 int main() {
     int frame;
     GL_init(GL_MODE_OLED);

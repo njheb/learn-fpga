@@ -1,11 +1,4 @@
-/*I DO NOT HAVE THE OLIMEX EVB BUT THINK THIS SHOULD WORK WITH SUITABLE ADJUSTMENTS IN LINE
- *with mods that got trenz icezero SRAM working.
- */
-
-//this has been proven on trenz icezero rev 02 
-
-//trenz icezero rev 03 boards are supposed to be available from
-//early Feb 2026
+//this has been proven on olimex iCE40HX8K evb 
 
 // based on information from 2 sources
 // http://www.clifford.at/icestorm/
@@ -23,9 +16,7 @@ module sram(
 	input wire i_rst,
 	output wire[17:0] o_sram_a,
 	inout wire[15:0] io_sram_d,
-// 	output wire o_sram_csn,
-//// 	output wire o_sram_ub_l,   NOT MAPPED TO FPGA
-//// 	output wire o_sram_lb_l,   NOT MAPPED TO FPGA
+	output wire o_sram_csn,
 	output wire o_sram_oen,
 	output wire o_sram_wen,
 
@@ -39,6 +30,8 @@ module sram(
 	output wire o_busy_r,
 	output wire o_busy_w
 );
+
+
 
 //one hot bit pattern supposed to save resources
 //but not trying
@@ -93,14 +86,14 @@ always @(posedge i_clk) begin
 	      else  
               sram_state <= SRAM_S2;
 	   end
-	   SRAM_S2: begin              	   
+	   SRAM_S2: begin	   
 	          sram_state <= SRAM_S3;
            end
 	   SRAM_S3: begin
 	      busy_w <= 0;
 	      sram_state <= SRAM_S0;
 	   end	   
-    endcase     	
+    endcase	
 end
     
 wire mem_rstrb = stb & !(|i_we_latch);
@@ -125,9 +118,7 @@ always @(posedge i_clk) begin
 		mem_w3 <= mem_w2 & ~mem_w3;
 end
 
-//assign o_sram_csn = 1'b0;
-////assign o_sram_lb_l = 1'b0;  NOT MAPPED TO FPGA
-////assign o_sram_ub_l = 1'b0;  NOT MAPPED TO FPGA
+assign o_sram_csn = 1'b0;
 
 assign o_sram_wen = ~(mem_w1 | mem_w3);
 assign o_sram_oen = ~(mem_rstrb | mem_r1 | mem_wstrb | mem_w2);

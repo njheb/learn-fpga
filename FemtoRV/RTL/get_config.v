@@ -60,6 +60,9 @@ initial begin
 `ifdef ICE40HX8K_EVB
    $write(" -DICE40HX8K_EVB=1");
 `endif
+`ifdef ICE40HX1K_EVB
+   $write(" -DICE40HX1K_EVB=1");
+`endif
    $write("\n");
  end 
 endmodule

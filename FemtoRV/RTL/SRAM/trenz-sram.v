@@ -36,9 +36,9 @@ module sram(
 	input wire i_rst,
 	output wire[18:0] o_sram_a,
 	inout wire[15:0] io_sram_d,
-// 	output wire o_sram_csn,
-// 	output wire o_sram_ub_l,
-// 	output wire o_sram_lb_l,
+	output wire o_sram_csn,
+	output wire o_sram_ub_l,
+	output wire o_sram_lb_l,
 	output wire o_sram_oen,
 	output wire o_sram_wen,
 
@@ -106,14 +106,14 @@ always @(posedge i_clk) begin
 	      else  
               sram_state <= SRAM_S2;
 	   end
-	   SRAM_S2: begin              	   
+	   SRAM_S2: begin	   
 	          sram_state <= SRAM_S3;
            end
 	   SRAM_S3: begin
 	      busy_w <= 0;
 	      sram_state <= SRAM_S0;
 	   end	   
-    endcase     	
+    endcase	
 end
     
 wire mem_rstrb = stb & !(|i_we_latch);
@@ -138,9 +138,9 @@ always @(posedge i_clk) begin
 		mem_w3 <= mem_w2 & ~mem_w3;
 end
 
-//assign o_sram_csn = 1'b0;
-//assign o_sram_lb_l = 1'b0;
-//assign o_sram_ub_l = 1'b0;
+assign o_sram_csn = 1'b0;
+assign o_sram_lb_l = 1'b0;
+assign o_sram_ub_l = 1'b0;
 
 assign o_sram_wen = ~(mem_w1 | mem_w3);
 assign o_sram_oen = ~(mem_rstrb | mem_r1 | mem_wstrb | mem_w2);

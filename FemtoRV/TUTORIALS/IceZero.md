@@ -1,8 +1,8 @@
 #Trenz IceZero
 
-Notes from 2024
+With the icestick being typically more like $120 at the moment an Icezero and raspberry pizero2wh or pizerowh may be more attractive but you will need to have access to a soldering iron to make full use of learn-fpga. 
 
-With the icestick being typically more like $120 at the moment an Icezero and raspberry pizero2wh may be more attractive but you will need to have access to a soldering iron to make full use of learn-fpga. I think there is potential to get the on board SRAM mapped into FemtoRV32 program space, but haven't tried yet. The TUTORIALS can be done without the need for soldering on a header.
+I have mapped the SRAM into FemtoRV32 program space, but maximum stable speed is 40MHz. The TUTORIALS can be done without the need for soldering on a header.
 
 
 The original board:
@@ -26,23 +26,24 @@ I started from Ice4Pi and there are a few mods for that board which work for my 
 
 For programming the IceZero from raspberry pi via bit banging I have made a quick and dirty fork of the icotools github repository [https://github.com/thekroko/icotools](URL) which is itself a fork of [https://github.com/cliffordwolf/icotools](URL)
 
-Programming tool sources at [https://github.com/njheb/icotools](URL)
+Programming tool sources at [https://github.com/njheb/icotools](URL) now with improved bbiceprog 
 
-You will be interested in making icezprog, icezprog-0x830000 and icezprog-0x1000000
+You will be interested in making icezprog, icezprog-0x30000 and icezprog-0x1000000
 
-I'm going to ask about getting this fork adpoted but I don't know the best way to integrate my changes.
+<s>I'm going to ask about getting this fork adpoted but I don't know the best way to integrate my changes</s>.
+As there has been no interest in my pull request on github I will maintain my own branch.
 
-For development I used an x86 pc running Ubuntu 20.04 for syntesis and a piz2w with header as the host for the icezero. I mounted an nfs share on a third device and accesed it from the x86 box and piz2wh.
+For development I used an x86 pc running Ubuntu 24.04 for syntesis and a piz2w with header as the host for the icezero. I mounted an nfs share on a third device and accesed it from the x86 box and piz2wh initially.
 
-I added an environment variable "RASPI_REMOTE_DIR=$(abspath $(FIRMWARE_DIR)../../../mnt/)" to FemtoRv/FIRMWARE/makefile.inc you should put a dir called "mnt" at the same level as "learn-fpga" or change this environment variable accordingly.  
+I added an environment variable "RASPI_REMOTE_DIR=$(abspath $(FIRMWARE_DIR)../../../mnt/)" to FemtoRv/FIRMWARE/makefile.inc you should put a dir called "mnt" at the same level as "learn-fpga" or change this environment variable accordingly.
 
 If there is intereset in this tree then it should not be difficult to get it to fit in. I thought it best to leave the hacky raspberry pi icezprog* tools in my own fork for now, location mentioned above.
 
 The TUTORIAL behaves like the ICESTICK in that it has 6k BRAM but the "make ICEZERO" femtosoc.bin targets 14k BRAM which is the maximum available.
 
-Some of the TUTORIAL bauds are down from 1000000 to 115200 as this works without change on the raspberry pi. I belive it would be possible to go faster by changing the boot config.txt in relation to /dev/ttyS0, but I have not tried and I doubt 1000000 would be possible on none usb adapters.
+<s>Some of the TUTORIAL bauds are down from 1000000 to 115200 as this works without change on the raspberry pi. I belive it would be possible to go faster by changing the boot config.txt in relation to /dev/ttyS0, but I have not tried and I doubt 1000000 would be possible on none usb adapters.</s>
 
-I've tested with waveshare OLED but not the LEDmatrix. Also there are 3 onboard leds rather than 5, see changes for details.
+I've tested with waveshare OLED and LEDmatrix. Also there are 3 onboard leds rather than 5, see changes for details.
 
 
 Fresh Notes for Jan2026
@@ -56,22 +57,20 @@ Also AMD64 ubuntu 24.04 LTS default apt repo tools when synthesis bug found with
 
 It took a lot longer to get back to the SRAM than I intended.
 
-Unfortunately I fumbled getting the sram pull request into my upstream repository and lost my trenz icezero commit from 2024. Then screwed up further so I've deleted my fork and recreated it. No one was collaberating so presumably that does no harm.
-
 I've got my trenz code back in my own upstream repository (BRANCH=ICEZERO-2024)
 I also incorporated changes from pull request #132 for another ICE40HX8K target with SRAM immediately after my first go at the trenz icezero in my own tree (BRANCH=SYNC-OLIMEX-ICE40HX8K-EVB)
 
 I kept the make name of ICE40HX8K_EVB for the olimex target.
 I've not added a BOARDS/run_olimexice8K.sh or made a .pcf for TUTORIALS/FROMBLINKERTORISCV for ICE40HX8K_EVB
 
-The actual SRAM code is in (BRANCH=PROPOSAL-SRAM-icezero-and-olimex-HX8K) and is up to date with master as of
+The actual SRAM code is in (BRANCH=SNAPSHOT-SRAM-COMPACTGPIO-TRENZ-IZ-OLIMEX-8K-1K) and is up to date with master as of
 2026jan20. 
- 
-I still need to revisit the programming tools for trenz icezero icezprog-* 
+
+<s>I still need to revisit the programming tools for trenz icezero icezprog-*</s> 
 
 CAUTION:I seem to have blown up my spare trenz icezero by mounting it on a pi5, unless I was really unlucky and it came out of the box broken. I have yet to go back and see if it's just the tx and or rx that are damaged.
 
-I use a piz2W with header and have it setup as a wifi hotspot.
+I use a piz2W with header and have it setup as a wifi station.
 
 On the pi I copied the terminal command into a script
 
@@ -111,3 +110,12 @@ In case the 32Mhz frequency an anoyance it it not actually needed it was just th
 I have not tried to get above 45MHz the synthesis output hovers around there and appears to be the limit without
 someone more knowledgable visiting the trenz_sram.v
 
+Late news I have seen instability at 45MHz but SRAM seems fine at 40MHz
+This is the same maximum clock for ICE40HX8K_EVB (I bought a board to test my port) and got a olimex 1kevb as well.
+The ICE40HX1K_EVB is very limited as it has no PLL.
+
+There is a tiny_tapeout PSRAM module test code in this SNAPSHOT but I have only managed to get spi mode working.
+PSRAM is in this snaphot in case it is of interest.
+
+There is also a GPIO device which has bitbang spi and bitbang ledmatrix and bitbang i2c master software support to keep the number of LUTS down. The i2c simulates open drain through never driving high which might be a bit risky but I was trying to save gates while keeping flexability.
+ 

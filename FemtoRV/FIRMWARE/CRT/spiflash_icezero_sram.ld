@@ -18,6 +18,7 @@ MEMORY {
     FLASH (rx)  : ORIGIN = 0x00830000, LENGTH = 0x100000 - 0x30000    /* actually 8 MB flash part, but use from 0x30000 to 0xFFFFF to avoid clashing with scene data*/
     RAM   (rwx) : ORIGIN = 0x00000000, LENGTH = 0x3800      /* 6 kB + 8 kB in BRAM   */
     SRAM  (rwx) : ORIGIN = 0x00100000, LENGTH = 512K        /* if you have a custom icezero its rare but possible that a 1MB chip could be fitted so update accordingly */
+    PSRAM (rwx) : ORIGIN = 0x00C00000, LENGTH = 4M        /* testing place holder currently not setup by start code*/
 }
 
 SECTIONS {
